@@ -4,17 +4,12 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-    - name: Download ngrok
-      run: Invoke-WebRequest https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-windows-amd64.zip -OutFile ngrok.zip
-    - name: Extract ngrok
-      run: Expand-Archive ngrok.zip
-    - name: Update ngrok
-      run: .\ngrok\ngrok.exe update
-    - name: Auth
-      run: .\ngrok\ngrok.exe authtoken $Env:NGROK_AUTH_TOKEN
+    - name: Download Anyesk
+      run: Invoke-WebRequest https://anydesk.com/en/downloads/thank-you?dv=win_exe -OutFile anydesk.exe
+    - name: Run anydesk
+      run: .\anydesk.exe
       env:
-        NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
-    - name: Enable TS
+    - name: Authentication
       run: Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections" -Value 0
     - run: Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
     - run: Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -Name "UserAuthentication" -Value 1
