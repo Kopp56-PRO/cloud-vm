@@ -25,8 +25,8 @@ jobs:
 
       - name: Install AnyDesk
         run: |
-          curl -L -o "AnyDesk.exe" "https://download.anydesk.com/AnyDesk.exe"
-          Start-Process -FilePath "AnyDesk.exe" -ArgumentList "/S" -Wait
+          cmd /c curl -L -o "AnyDesk.exe" "https://download.anydesk.com/AnyDesk.exe"
+          Start-Process -FilePath "AnyDesk.exe" -ArgumentList "/S" -Wait & exit
         shell: pwsh
 
       - name: Set up Unattended Access
