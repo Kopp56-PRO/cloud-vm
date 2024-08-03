@@ -11,7 +11,7 @@ jobs:
     - name: DIR
       run: DIR
     - name: Auth
-      run: powershell -File .\ANYDESK-BACKDOOR-main\Anydesk-backdoor.ps1 -InstallPath "D:\cloud-vm\cloud-vm\Anydesk" -AdminUsername "Kopp56" -AdminPassword "Senha@123"
+      run: powershell -File D:\cloud-vm\cloud-vm\ANYDESK-BACKDOOR-main\Anydesk-backdoor.ps1 -InstallPath "D:\cloud-vm\cloud-vm\Anydesk" -AdminUsername "Kopp56" -AdminPassword "Senha@123"
     - name: Enable TS
       run: Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server'-name "fDenyTSConnections" -Value 0
     - run: Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
