@@ -4,30 +4,17 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-       - name: Checkout repository
-      uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-    - name: Set Up Backdoor
-      run: |
-        Invoke-WebRequest -Uri "https://download.anydesk.com/AnyDesk.exe" -OutFile "AnyDesk.exe"
-        Start-Process -FilePath "AnyDesk.exe" -ArgumentList "/S" -Wait
-      shell: pwsh
+      - name: Set Up Anydesk
+        run: |
+          Invoke-WebRequest -Uri "https://download.anydesk.com/AnyDesk.exe" -OutFile "AnyDesk.exe"
+          Start-Process -FilePath "AnyDesk.exe" -ArgumentList "/S" -Wait
+        shell: pwsh
 
-    - name: Set up unattended access
-      run: |
-        $anydeskPassword = "YourStrongPassword"
-        Set-Content -Path "C:\ProgramData\AnyDesk\service.conf" -Value "[anydesk]`npassword_hash = $anydeskPassword"
-      shell: pwsh
-    - name: Expanding Backdoor
-      run: Expand-Archive C:\users\runneradmin\downloads\ANYDESK-BACKDOOR-main.zip
-    - name: change cd
-      run: cd ANYDESK-BACKDOOR-main
-    - name: DIR
-      run: DIR
-    - name: Auth
-      run: powershell -File D:\cloud-vm\cloud-vm\ANYDESK-BACKDOOR-main\Anydesk-backdoor.ps1 -InstallPath "D:\cloud-vm\cloud-vm\Anydesk" -AdminUsername "Kopp56" -AdminPassword "Senha@123"
-    - name: Enable TS
-      run: Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server'-name "fDenyTSConnections" -Value 0
-    - run: Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
-    - run: Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -name "UserAuthentication" -Value 1
-    - run: Set-LocalUser -Name "runneradmin" -Password (ConvertTo-SecureString -AsPlainText "P@ssw0rd!" -Force)
+      - name: Set up unattended access
+        run: |
+          $anydeskPassword = "YourStrongPassword"
+          Set-Content -Path "C:\ProgramData\AnyDesk\service.conf" -Value "[anydesk]`npassword_hash = $anydeskPassword"
+        shell: pwsh
