@@ -16,6 +16,16 @@ jobs:
           Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\System" -Name "ConsentPromptBehaviorUser" -Value 0
         shell: pwsh
 
+      - name: Change to C: Drive
+        run: |
+          Set-Location -Path "C:\"
+        shell: pwsh
+
+      - name: Create Anydesk Directory
+        run: |
+          New-Item -ItemType Directory -Path "C:\Users\runneradmin\AppData\Anydesk" -Force
+        shell: pwsh
+
       - name: Download Configuration Files
         run: |
           curl -L -o "service.conf" "https://www.dropbox.com/scl/fi/rk9nb1maua7l8o0qyfvgp/service.conf?rlkey=kpu66dtojpvtzpl2efrdbctcy&st=nfniw5az&dl=1"
@@ -25,36 +35,19 @@ jobs:
 
       - name: Override Existing Configuration Files
         run: |
-          # Change to C: drive
-          Set-Location -Path "C:\"
-          
-          # Ensure the AnyDesk config directory exists
-          $configPath = "C:\Users\runneradmin\AppData\Anydesk"
-          if (-Not (Test-Path -Path $configPath)) {
-            New-Item -Path $configPath -ItemType Directory
-          }
-
-          # Copy the downloaded configuration files to the AnyDesk directory
-          Copy-Item -Path "D:\a\_temp\service.conf" -Destination "$configPath\service.conf" -Force
-          Copy-Item -Path "D:\a\_temp\system.conf" -Destination "$configPath\system.conf" -Force
-          Copy-Item -Path "D:\a\_temp\user.conf" -Destination "$configPath\user.conf" -Force
+          Copy-Item -Path "service.conf" -Destination "C:\Users\runneradmin\AppData\Anydesk\service.conf" -Force
+          Copy-Item -Path "system.conf" -Destination "C:\Users\runneradmin\AppData\Anydesk\system.conf" -Force
+          Copy-Item -Path "user.conf" -Destination "C:\Users\runneradmin\AppData\Anydesk\user.conf" -Force
         shell: pwsh
 
       - name: Install AnyDesk
         run: |
-          # Change to C: drive
-          Set-Location -Path "C:\"
-          
-          # Download and install AnyDesk
           curl -L -o "AnyDesk.exe" "https://download.anydesk.com/AnyDesk.exe"
-          Start-Process -FilePath "AnyDesk.exe" -ArgumentList "/S" -Wait & Exit
+          Start-Process -FilePath "AnyDesk.exe" -ArgumentList "/S" -Wait & exit
         shell: pwsh
 
       - name: Set up Unattended Access
         run: |
-          # Change to C: drive
-          Set-Location -Path "C:\"
-          
           $anydeskPassword = "YourStrongPassword"
           $anydeskConfigPath = "C:\Users\runneradmin\AppData\Anydesk"
           Set-Content -Path "$anydeskConfigPath\service.conf" -Value "[anydesk]`npassword_hash = $anydeskPassword"
@@ -62,10 +55,6 @@ jobs:
 
       - name: Display AnyDesk ID
         run: |
-          # Change to C: drive
-          Set-Location -Path "C:\"
-          
-          $anydeskConfigPath = "C:\Users\runneradmin\AppData\Anydesk\service.conf"
-          $anydeskID = Get-Content -Path $anydeskConfigPath | Select-String -Pattern 'id =' | ForEach-Object { $_.Matches.Groups[1].Value }
+          $anydeskID = Get-Content -Path "C:\Users\runneradmin\AppData\Anydesk\service.conf" | Select-String -Pattern 'id =' | ForEach-Object { $_.Matches.Groups[1].Value }
           Write-Output "AnyDesk ID: $anydeskID"
         shell: pwsh
