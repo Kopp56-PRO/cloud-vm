@@ -14,15 +14,11 @@ jobs:
           Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\System" -Name "ConsentPromptBehaviorUser" -Value 0
         shell: pwsh
 
-      - name: Set Up Anydesk
+      - name: Set Up AnyDesk and Unattended Access
         run: |
           curl -o Anydesk.exe https://download.anydesk.com/AnyDesk.exe
-
           Start-Process -FilePath "AnyDesk.exe" -ArgumentList "/S" -Wait
-        shell: pwsh
 
-      - name: Set up unattended access
-        run: |
           $anydeskPassword = "YourStrongPassword"
           Set-Content -Path "C:\ProgramData\AnyDesk\service.conf" -Value "[anydesk]`npassword_hash = $anydeskPassword"
         shell: pwsh
