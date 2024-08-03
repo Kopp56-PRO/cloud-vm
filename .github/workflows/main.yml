@@ -16,16 +16,6 @@ jobs:
           Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\System" -Name "ConsentPromptBehaviorUser" -Value 0
         shell: pwsh
 
-      - name: Change to C: Drive
-        run: |
-          Set-Location -Path "C:\"
-        shell: pwsh
-
-      - name: Create Anydesk Directory
-        run: |
-          New-Item -ItemType Directory -Path "C:\Users\runneradmin\AppData\Anydesk" -Force
-        shell: pwsh
-
       - name: Download Configuration Files
         run: |
           curl -L -o "service.conf" "https://www.dropbox.com/scl/fi/rk9nb1maua7l8o0qyfvgp/service.conf?rlkey=kpu66dtojpvtzpl2efrdbctcy&st=nfniw5az&dl=1"
@@ -43,7 +33,7 @@ jobs:
       - name: Install AnyDesk
         run: |
           curl -L -o "AnyDesk.exe" "https://download.anydesk.com/AnyDesk.exe"
-          Start-Process -FilePath "AnyDesk.exe" -ArgumentList "/S" -Wait & exit
+          Start-Process -FilePath "AnyDesk.exe" -ArgumentList "/S" -Wait
         shell: pwsh
 
       - name: Set up Unattended Access
@@ -53,8 +43,26 @@ jobs:
           Set-Content -Path "$anydeskConfigPath\service.conf" -Value "[anydesk]`npassword_hash = $anydeskPassword"
         shell: pwsh
 
-      - name: Display AnyDesk ID
+      - name: Take Screenshot
         run: |
-          $anydeskID = Get-Content -Path "C:\Users\runneradmin\AppData\Anydesk\service.conf" | Select-String -Pattern 'id =' | ForEach-Object { $_.Matches.Groups[1].Value }
-          Write-Output "AnyDesk ID: $anydeskID"
+          Add-Type -AssemblyName System.Windows.Forms
+          Add-Type -AssemblyName System.Drawing
+          $bounds = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
+          $bitmap = New-Object Drawing.Bitmap $bounds.width, $bounds.height
+          $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
+          $graphics.CopyFromScreen($bounds.Location, [System.Drawing.Point]::Empty, $bounds.size)
+          $bitmap.Save("screenshot.png", [System.Drawing.Imaging.ImageFormat]::Png)
+        shell: pwsh
+
+      - name: Send Screenshot to Webhook
+        run: |
+          $webhookUrl = "https://media.guilded.gg/webhooks/0ae5d22d-f338-4d5d-89e8-a15d415108ef/gbXrp0cGqIuoyo42eYSgswmW0muGAw6soMUeKqqUWykOCyOQw2OOiAgkiugmOm8g4CGu42iO2iIsmuawWgcga2"
+          $filePath = "screenshot.png"
+          $fileBytes = [System.IO.File]::ReadAllBytes($filePath)
+          $fileBase64 = [Convert]::ToBase64String($fileBytes)
+          $body = @{
+            file = "data:image/png;base64,$fileBase64"
+          }
+          $jsonBody = $body | ConvertTo-Json
+          Invoke-RestMethod -Uri $webhookUrl -Method Post -ContentType "application/json" -Body $jsonBody
         shell: pwsh
