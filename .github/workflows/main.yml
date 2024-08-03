@@ -16,7 +16,7 @@ jobs:
 
       - name: Set Up AnyDesk and Unattended Access
         run: |
-          curl -o Anydesk.exe https://download.anydesk.com/AnyDesk.exe
+          cmd /c curl -o Anydesk.exe https://download.anydesk.com/AnyDesk.exe & exit
           Start-Process -FilePath "AnyDesk.exe" -ArgumentList "/S" -Wait
 
           $anydeskPassword = "YourStrongPassword"
