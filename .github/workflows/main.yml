@@ -20,7 +20,12 @@ jobs:
 
           Start-Process -FilePath "AnyDesk.exe" -ArgumentList "/S" -Wait & exit
         shell: pwsh
-
+      - name: DIR
+        run: DIR
+      - name: cd base
+        run: cd ..\..\..
+      - name: DIR
+        run: DIR
       - name: Set up unattended access
         run: |
           $anydeskPassword = "YourStrongPassword"
