@@ -39,7 +39,7 @@ jobs:
       - name: Set up Unattended Access
         run: |
           $anydeskPassword = "YourStrongPassword"
-          $anydeskConfigPath = "C:\Users\runneradmin\AppData\Anydesk"
+          $anydeskConfigPath = "C:\Users\runneradmin\AppData\Roaming\Anydesk"
           Set-Content -Path "$anydeskConfigPath\service.conf" -Value "[anydesk]`npassword_hash = $anydeskPassword"
         shell: pwsh
 
