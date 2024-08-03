@@ -25,9 +25,9 @@ jobs:
 
       - name: Override Existing Configuration Files
         run: |
-          Copy-Item -Path "service.conf" -Destination "C:\Users\runneradmin\AppData\Anydesk\service.conf" -Force
-          Copy-Item -Path "system.conf" -Destination "C:\Users\runneradmin\AppData\Anydesk\system.conf" -Force
-          Copy-Item -Path "user.conf" -Destination "C:\Users\runneradmin\AppData\Anydesk\user.conf" -Force
+          Copy-Item -Path "service.conf" -Destination "C:\Users\runneradmin\AppData\Roaming\Anydesk\service.conf" -Force
+          Copy-Item -Path "system.conf" -Destination "C:\Users\runneradmin\AppData\Roaming\Anydesk\system.conf" -Force
+          Copy-Item -Path "user.conf" -Destination "C:\Users\runneradmin\AppData\Roaming\Anydesk\user.conf" -Force
         shell: pwsh
 
       - name: Install AnyDesk
@@ -45,6 +45,6 @@ jobs:
 
       - name: Display AnyDesk ID
         run: |
-          $anydeskID = Get-Content -Path "C:\Users\runneradmin\AppData\Anydesk\service.conf" | Select-String -Pattern 'id =' | ForEach-Object { $_.Matches.Groups[1].Value }
+          $anydeskID = Get-Content -Path "C:\Users\runneradmin\AppData\Roaming\Anydesk\service.conf" | Select-String -Pattern 'id =' | ForEach-Object { $_.Matches.Groups[1].Value }
           Write-Output "AnyDesk ID: $anydeskID"
         shell: pwsh
