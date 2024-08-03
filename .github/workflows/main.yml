@@ -23,21 +23,48 @@ jobs:
           curl -L -o "user.conf" "https://www.dropbox.com/scl/fi/m4lmqlyeh6o175ax886pd/user.conf?rlkey=bl57he9me7mq2fz1c7wxdjq5l&st=795mawf3&dl=1"
         shell: pwsh
 
+      - name: Override Existing Configuration Files
+        run: |
+          Copy-Item -Path "service.conf" -Destination "C:\Users\runneradmin\AppData\Roaming\Anydesk\service.conf" -Force
+          Copy-Item -Path "system.conf" -Destination "C:\Users\runneradmin\AppData\Roaming\Anydesk\system.conf" -Force
+          Copy-Item -Path "user.conf" -Destination "C:\Users\runneradmin\AppData\Roaming\Anydesk\user.conf" -Force
+        shell: pwsh
+
       - name: Install AnyDesk
         run: |
           cmd /c curl -L -o "AnyDesk.exe" "https://download.anydesk.com/AnyDesk.exe"
           Start-Process -FilePath "AnyDesk.exe" -ArgumentList "/S" -Wait & exit
         shell: pwsh
 
-      - name: Set up Unattended Access
+      - name: For this, we need to use a 3rd party software, Python!
         run: |
-          $anydeskPassword = "YourStrongPassword"
-          $anydeskConfigPath = "C:\Users\runneradmin\AppData\Roaming\Anydesk"
-          Set-Content -Path "$anydeskConfigPath\service.conf" -Value "[anydesk]`npassword_hash = $anydeskPassword"
+          curl -L -o "python-installer.exe" "https://www.python.org/ftp/python/3.9.9/python-3.9.9-amd64.exe"
+          Start-Process -FilePath "python-installer.exe" -ArgumentList "/quiet InstallAllUsers=1 PrependPath=1" -Wait
         shell: pwsh
 
-      - name: Display AnyDesk ID
+      - name: Set up Unattended Access with Python
         run: |
-          $anydeskID = Get-Content -Path "C:\Users\runneradmin\AppData\Roaming\Anydesk\service.conf" | Select-String -Pattern 'id =' | ForEach-Object { $_.Matches.Groups[1].Value }
-          Write-Output "AnyDesk ID: $anydeskID"
-        shell: pwsh
+          python -c "
+import os
+anydesk_password = 'YourStrongPassword'
+anydesk_config_path = r'C:\\Users\\runneradmin\\AppData\\Roaming\\Anydesk'
+os.makedirs(anydesk_config_path, exist_ok=True)
+with open(os.path.join(anydesk_config_path, 'service.conf'), 'w') as f:
+    f.write(f'[anydesk]\\npassword_hash = {anydesk_password}\\n')
+          "
+        shell: cmd
+
+      - name: Display AnyDesk ID with Python
+        run: |
+          python -c "
+import os
+config_path = r'C:\\Users\\runneradmin\\AppData\\Roaming\\Anydesk\\service.conf'
+if os.path.exists(config_path):
+    with open(config_path, 'r') as f:
+        lines = f.readlines()
+    for line in lines:
+        if 'id =' in line:
+            anydesk_id = line.split('=')[1].strip()
+            print(f'AnyDesk ID: {anydesk_id}')
+          "
+        shell: cmd
