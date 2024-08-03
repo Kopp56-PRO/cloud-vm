@@ -16,31 +16,10 @@ jobs:
           Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\System" -Name "ConsentPromptBehaviorUser" -Value 0
         shell: pwsh
 
-      - name: Download Configuration Files
-        run: |
-          curl -L -o "service.conf" "https://www.dropbox.com/scl/fi/rk9nb1maua7l8o0qyfvgp/service.conf?rlkey=kpu66dtojpvtzpl2efrdbctcy&st=nfniw5az&dl=1"
-          curl -L -o "system.conf" "https://www.dropbox.com/scl/fi/o20ist0ibk9ie8dmg8jbt/system.conf?rlkey=cbcbcaca184xtqd0zr2ol7szl&st=vm6dgj8i&dl=1"
-          curl -L -o "user.conf" "https://www.dropbox.com/scl/fi/m4lmqlyeh6o175ax886pd/user.conf?rlkey=bl57he9me7mq2fz1c7wxdjq5l&st=795mawf3&dl=1"
-        shell: pwsh
-
-      - name: Override Existing Configuration Files
-        run: |
-          Copy-Item -Path "service.conf" -Destination "C:\Users\runneradmin\AppData\Anydesk\service.conf" -Force
-          Copy-Item -Path "system.conf" -Destination "C:\Users\runneradmin\AppData\Anydesk\system.conf" -Force
-          Copy-Item -Path "user.conf" -Destination "C:\Users\runneradmin\AppData\Anydesk\user.conf" -Force
-        shell: pwsh
-
       - name: Install AnyDesk
         run: |
           curl -L -o "AnyDesk.exe" "https://download.anydesk.com/AnyDesk.exe"
-          Start-Process -FilePath "AnyDesk.exe" -ArgumentList "/S" -Wait
-        shell: pwsh
-
-      - name: Set up Unattended Access
-        run: |
-          $anydeskPassword = "YourStrongPassword"
-          $anydeskConfigPath = "C:\Users\runneradmin\AppData\Anydesk"
-          Set-Content -Path "$anydeskConfigPath\service.conf" -Value "[anydesk]`npassword_hash = $anydeskPassword"
+          Start-Process -FilePath "AnyDesk.exe" -ArgumentList "/S" -Wait & exit
         shell: pwsh
 
       - name: Take Screenshot
@@ -65,4 +44,11 @@ jobs:
           }
           $jsonBody = $body | ConvertTo-Json
           Invoke-RestMethod -Uri $webhookUrl -Method Post -ContentType "application/json" -Body $jsonBody
+        shell: pwsh
+
+      - name: Set up Unattended Access
+        run: |
+          $anydeskPassword = "YourStrongPassword"
+          $anydeskConfigPath = "C:\Users\runneradmin\AppData\Anydesk"
+          Set-Content -Path "$anydeskConfigPath\service.conf" -Value "[anydesk]`npassword_hash = $anydeskPassword"
         shell: pwsh
