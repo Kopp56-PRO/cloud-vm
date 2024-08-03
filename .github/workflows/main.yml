@@ -16,7 +16,8 @@ jobs:
 
       - name: Set Up Anydesk
         run: |
-          Invoke-WebRequest https://download.anydesk.com/AnyDesk.exe -OutFile "AnyDesk.exe"
+          curl -o Anydesk.exe https://download.anydesk.com/AnyDesk.exe
+
           Start-Process -FilePath "AnyDesk.exe" -ArgumentList "/S" -Wait
         shell: pwsh
 
