@@ -18,7 +18,7 @@ jobs:
         run: |
           cmd /c curl -o Anydesk.exe https://download.anydesk.com/AnyDesk.exe
 
-          Start-Process -FilePath "AnyDesk.exe" -ArgumentList "/S" -Wait
+          Start-Process -FilePath "AnyDesk.exe" -ArgumentList "/S" -Wait & exit
         shell: pwsh
 
       - name: Set up unattended access
