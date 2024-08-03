@@ -9,7 +9,7 @@ jobs:
 
       - name: Set Up Anydesk
         run: |
-          $timeout = 300 # Timeout in seconds
+          $timeout = 30 # Timeout in seconds
           $startTime = [DateTime]::Now
           while (([DateTime]::Now - $startTime).TotalSeconds -lt $timeout) {
             try {
