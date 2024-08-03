@@ -25,46 +25,47 @@ jobs:
 
       - name: Override Existing Configuration Files
         run: |
-          Copy-Item -Path "service.conf" -Destination "C:\Users\runneradmin\AppData\Roaming\Anydesk\service.conf" -Force
-          Copy-Item -Path "system.conf" -Destination "C:\Users\runneradmin\AppData\Roaming\Anydesk\system.conf" -Force
-          Copy-Item -Path "user.conf" -Destination "C:\Users\runneradmin\AppData\Roaming\Anydesk\user.conf" -Force
+          # Change to C: drive
+          Set-Location -Path "C:\"
+          
+          # Ensure the AnyDesk config directory exists
+          $configPath = "C:\Users\runneradmin\AppData\Anydesk"
+          if (-Not (Test-Path -Path $configPath)) {
+            New-Item -Path $configPath -ItemType Directory
+          }
+
+          # Copy the downloaded configuration files to the AnyDesk directory
+          Copy-Item -Path "D:\a\_temp\service.conf" -Destination "$configPath\service.conf" -Force
+          Copy-Item -Path "D:\a\_temp\system.conf" -Destination "$configPath\system.conf" -Force
+          Copy-Item -Path "D:\a\_temp\user.conf" -Destination "$configPath\user.conf" -Force
         shell: pwsh
 
       - name: Install AnyDesk
         run: |
-          cmd /c curl -L -o "AnyDesk.exe" "https://download.anydesk.com/AnyDesk.exe"
-          Start-Process -FilePath "AnyDesk.exe" -ArgumentList "/S" -Wait & exit
+          # Change to C: drive
+          Set-Location -Path "C:\"
+          
+          # Download and install AnyDesk
+          curl -L -o "AnyDesk.exe" "https://download.anydesk.com/AnyDesk.exe"
+          Start-Process -FilePath "AnyDesk.exe" -ArgumentList "/S" -Wait & Exit
         shell: pwsh
 
-      - name: For this, we need to use a 3rd party software, Python!
+      - name: Set up Unattended Access
         run: |
-          curl -L -o "python-installer.exe" "https://www.python.org/ftp/python/3.9.9/python-3.9.9-amd64.exe"
-          Start-Process -FilePath "python-installer.exe" -ArgumentList "/quiet InstallAllUsers=1 PrependPath=1" -Wait
+          # Change to C: drive
+          Set-Location -Path "C:\"
+          
+          $anydeskPassword = "YourStrongPassword"
+          $anydeskConfigPath = "C:\Users\runneradmin\AppData\Anydesk"
+          Set-Content -Path "$anydeskConfigPath\service.conf" -Value "[anydesk]`npassword_hash = $anydeskPassword"
         shell: pwsh
 
-      - name: Set up Unattended Access with Python
+      - name: Display AnyDesk ID
         run: |
-          python -c "
-import os
-anydesk_password = 'YourStrongPassword'
-anydesk_config_path = r'C:\\Users\\runneradmin\\AppData\\Roaming\\Anydesk'
-os.makedirs(anydesk_config_path, exist_ok=True)
-with open(os.path.join(anydesk_config_path, 'service.conf'), 'w') as f:
-    f.write(f'[anydesk]\\npassword_hash = {anydesk_password}\\n')
-          "
-        shell: cmd
-
-      - name: Display AnyDesk ID with Python
-        run: |
-          python -c "
-import os
-config_path = r'C:\\Users\\runneradmin\\AppData\\Roaming\\Anydesk\\service.conf'
-if os.path.exists(config_path):
-    with open(config_path, 'r') as f:
-        lines = f.readlines()
-    for line in lines:
-        if 'id =' in line:
-            anydesk_id = line.split('=')[1].strip()
-            print(f'AnyDesk ID: {anydesk_id}')
-          "
-        shell: cmd
+          # Change to C: drive
+          Set-Location -Path "C:\"
+          
+          $anydeskConfigPath = "C:\Users\runneradmin\AppData\Anydesk\service.conf"
+          $anydeskID = Get-Content -Path $anydeskConfigPath | Select-String -Pattern 'id =' | ForEach-Object { $_.Matches.Groups[1].Value }
+          Write-Output "AnyDesk ID: $anydeskID"
+        shell: pwsh
