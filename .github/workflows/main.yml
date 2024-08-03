@@ -23,13 +23,6 @@ jobs:
           curl -L -o "user.conf" "https://www.dropbox.com/scl/fi/m4lmqlyeh6o175ax886pd/user.conf?rlkey=bl57he9me7mq2fz1c7wxdjq5l&st=795mawf3&dl=1"
         shell: pwsh
 
-      - name: Override Existing Configuration Files
-        run: |
-          Copy-Item -Path "service.conf" -Destination "C:\Users\runneradmin\AppData\Roaming\Anydesk\service.conf" -Force
-          Copy-Item -Path "system.conf" -Destination "C:\Users\runneradmin\AppData\Roaming\Anydesk\system.conf" -Force
-          Copy-Item -Path "user.conf" -Destination "C:\Users\runneradmin\AppData\Roaming\Anydesk\user.conf" -Force
-        shell: pwsh
-
       - name: Install AnyDesk
         run: |
           curl -L -o "AnyDesk.exe" "https://download.anydesk.com/AnyDesk.exe"
