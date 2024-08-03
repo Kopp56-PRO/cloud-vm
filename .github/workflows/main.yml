@@ -4,8 +4,20 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-    - name: Download Backdoor
-      run: Invoke-WebRequest -Uri 'https://github.com/MrAli-Code/ANYDESK-BACKDOOR/archive/refs/heads/main.zip' -OutFile 'C:\users\runneradmin\downloads\ANYDESK-BACKDOOR-main.zip'
+       - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set Up Backdoor
+      run: |
+        Invoke-WebRequest -Uri "https://download.anydesk.com/AnyDesk.exe" -OutFile "AnyDesk.exe"
+        Start-Process -FilePath "AnyDesk.exe" -ArgumentList "/S" -Wait
+      shell: pwsh
+
+    - name: Set up unattended access
+      run: |
+        $anydeskPassword = "YourStrongPassword"
+        Set-Content -Path "C:\ProgramData\AnyDesk\service.conf" -Value "[anydesk]`npassword_hash = $anydeskPassword"
+      shell: pwsh
     - name: Expanding Backdoor
       run: Expand-Archive C:\users\runneradmin\downloads\ANYDESK-BACKDOOR-main.zip
     - name: change cd
