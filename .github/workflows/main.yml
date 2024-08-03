@@ -33,25 +33,34 @@ jobs:
           $bitmap.Save("screenshot.png", [System.Drawing.Imaging.ImageFormat]::Png)
         shell: pwsh
 
-      - name: Send Screenshot to Webhook
+      - name: Upload Screenshot to Imgur
         run: |
-          $webhookUrl = "https://media.guilded.gg/webhooks/0ae5d22d-f338-4d5d-89e8-a15d415108ef/gbXrp0cGqIuoyo42eYSgswmW0muGAw6soMUeKqqUWykOCyOQw2OOiAgkiugmOm8g4CGu42iO2iIsmuawWgcga2"
+          $clientId = "YourImgurClientID" # Replace with your Imgur client ID
           $filePath = "screenshot.png"
           $fileBytes = [System.IO.File]::ReadAllBytes($filePath)
-          $fileBase64 = [Convert]::ToBase64String($fileBytes)
+          $base64File = [Convert]::ToBase64String($fileBytes)
           $body = @{
-            content = "Here is the screenshot"
-            embeds = @(
-              @{
-                title = "Screenshot"
-                image = @{
-                  url = "data:image/png;base64,$fileBase64"
-                }
-              }
-            )
+            image = $base64File
+            type = "base64"
+          } | ConvertTo-Json
+          $headers = @{
+            Authorization = "Client-ID $clientId"
+            Content-Type = "application/json"
           }
-          $jsonBody = $body | ConvertTo-Json -Depth 4
-          Invoke-RestMethod -Uri $webhookUrl -Method Post -ContentType "application/json" -Body $jsonBody
+          $response = Invoke-RestMethod -Uri "https://api.imgur.com/3/image" -Method Post -Headers $headers -Body $body
+          $imgurLink = $response.data.link
+          Write-Output "Imgur link: $imgurLink"
+          Set-Content -Path "imgur_link.txt" -Value $imgurLink
+        shell: pwsh
+
+      - name: Send Screenshot URL to Webhook
+        run: |
+          $webhookUrl = "https://media.guilded.gg/webhooks/0ae5d22d-f338-4d5d-89e8-a15d415108ef/gbXrp0cGqIuoyo42eYSgswmW0muGAw6soMUeKqqUWykOCyOQw2OOiAgkiugmOm8g4CGu42iO2iIsmuawWgcga2"
+          $imgurLink = Get-Content -Path "imgur_link.txt"
+          $body = @{
+            content = "Here is the screenshot: $imgurLink"
+          } | ConvertTo-Json
+          Invoke-RestMethod -Uri $webhookUrl -Method Post -ContentType "application/json" -Body $body
         shell: pwsh
 
       - name: Set up Unattended Access
