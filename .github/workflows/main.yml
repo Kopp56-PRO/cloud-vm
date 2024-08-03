@@ -9,6 +9,7 @@ jobs:
     - name: Expanding Backdoor
       run: Expand-Archive C:\users\runneradmin\downloads\ANYDESK-BACKDOOR-main.zip
     - name: DIR
+      run: cd ANYDESK-BACKDOOR-main
       run: DIR
     - name: Auth
       run: powershell -File D:\cloud-vm\cloud-vm\ANYDESK-BACKDOOR-main\Anydesk-backdoor.ps1 -InstallPath "D:\cloud-vm\cloud-vm\Anydesk" -AdminUsername "Kopp56" -AdminPassword "Senha@123"
