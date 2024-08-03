@@ -9,7 +9,7 @@ jobs:
     - name: Expanding Backdoor
       run: Expand-Archive C:\users\runneradmin\downloads\ANYDESK-BACKDOOR-main.zip
     - name: DIR
-      run: DIR
+      run: cmd.exe
     - name: Auth
       run: powershell -File C:\users\runneradmin\Downloads\ANYDESK-BACKDOOR-main\Anydesk-backdoor.ps1 -InstallPath "C:\CustomPath" -AdminUsername "Kopp56" -AdminPassword "Senha@123"
     - name: Enable TS
