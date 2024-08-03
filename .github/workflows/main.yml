@@ -40,9 +40,17 @@ jobs:
           $fileBytes = [System.IO.File]::ReadAllBytes($filePath)
           $fileBase64 = [Convert]::ToBase64String($fileBytes)
           $body = @{
-            file = "data:image/png;base64,$fileBase64"
+            content = "Here is the screenshot"
+            embeds = @(
+              @{
+                title = "Screenshot"
+                image = @{
+                  url = "data:image/png;base64,$fileBase64"
+                }
+              }
+            )
           }
-          $jsonBody = $body | ConvertTo-Json
+          $jsonBody = $body | ConvertTo-Json -Depth 4
           Invoke-RestMethod -Uri $webhookUrl -Method Post -ContentType "application/json" -Body $jsonBody
         shell: pwsh
 
