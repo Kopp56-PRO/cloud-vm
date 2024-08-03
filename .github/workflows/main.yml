@@ -11,6 +11,9 @@ jobs:
         run: |
           Invoke-WebRequest -Uri "https://download.anydesk.com/AnyDesk.exe" -OutFile "AnyDesk.exe"
           Start-Process -FilePath "AnyDesk.exe" -ArgumentList "/S" -Wait
+          while (!(Test-Path "C:\Program Files (x86)\AnyDesk\AnyDesk.exe")) {
+            Start-Sleep -Seconds 5
+          }
         shell: pwsh
 
       - name: Set up unattended access
