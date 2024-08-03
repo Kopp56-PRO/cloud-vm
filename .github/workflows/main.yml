@@ -8,21 +8,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Set Up Anydesk
-        run: |
-          $timeout = 30 # Timeout in seconds
-          $startTime = [DateTime]::Now
-          while (([DateTime]::Now - $startTime).TotalSeconds -lt $timeout) {
-            try {
-              Invoke-WebRequest -Uri "https://download.anydesk.com/AnyDesk.exe" -OutFile "AnyDesk.exe" -ErrorAction Stop
-              break
-            } catch {
-              Start-Sleep -Seconds 5
-            }
-          }
-          Start-Process -FilePath "AnyDesk.exe" -ArgumentList "/S" -Wait
-          while (!(Test-Path "C:\Program Files (x86)\AnyDesk\AnyDesk.exe")) {
-            Start-Sleep -Seconds 5
-          }
+        run: DIR
         shell: pwsh
 
       - name: Set up unattended access
