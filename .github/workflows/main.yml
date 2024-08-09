@@ -40,9 +40,6 @@ jobs:
         $ip = (Get-NetIPAddress -AddressFamily IPv4 | Where-Object {$_.PrefixLength -eq 24}).IPAddress
         Write-Output "VM IP Address: $ip"
         
-        # Save IP Address to a variable
-        $ipContent = "VM IP Address: $ip"
-
         # Save IP Address as a file
         Set-Content -Path vm_ip.txt -Value $ip
 
@@ -53,9 +50,17 @@ jobs:
         
         # Get the IP Address content
         $ipContent = Get-Content -Path vm_ip.txt -Raw
-        
+
+        # Escape special characters for JSON
+        $escapedIpContent = $ipContent -replace '"', '\"' -replace '\r\n', '\n'
+
+        # Create JSON payload
+        $jsonPayload = @{
+          content = $escapedIpContent
+        } | ConvertTo-Json
+
         # Send the IP address content to the Guilded webhook
-        curl -X POST $webhookUrl -H "Content-Type: application/json" -d "{\"content\": \"$ipContent\"}"
+        curl -X POST $webhookUrl -H "Content-Type: application/json" -d "$jsonPayload"
 
     - name: Continuous Maintenance Loop
       run: |
