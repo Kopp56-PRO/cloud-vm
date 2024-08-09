@@ -52,14 +52,10 @@ jobs:
         $webhookUrl = "https://media.guilded.gg/webhooks/98fac789-7d2b-4c8e-b8f9-798d6510ad0f/IscmgK7ageMAiEq6uM6yqWYIMAIaw4uMMOeieaAcMykuIqQ06oKGswowgk0IcGWsWAiM6WM6KQ26wcgqgYSwqU"
         
         # Get the IP Address content
-        $ipContent = Get-Content -Path vm_ip.txt
-
+        $ipContent = Get-Content -Path vm_ip.txt -Raw
+        
         # Send the IP address content to the Guilded webhook
-        curl -X POST $webhookUrl -H "Content-Type: application/json" -d @"
-        {
-          "content": "$ipContent"
-        }
-"@
+        curl -X POST $webhookUrl -H "Content-Type: application/json" -d "{\"content\": \"$ipContent\"}"
 
     - name: Continuous Maintenance Loop
       run: |
