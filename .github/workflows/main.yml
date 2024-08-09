@@ -10,29 +10,43 @@ jobs:
     - name: Check out repository
       uses: actions/checkout@v3
 
-    - name: Enable Remote Desktop
+    - name: Enable and Maintain Remote Desktop
       run: |
-        # Enable Remote Desktop by modifying the registry
-        $regPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server"
-        Set-ItemProperty -Path $regPath -Name "fDenyTSConnections" -Value 0
+        while ($true) {
+          try {
+            # Enable Remote Desktop by modifying the registry
+            $regPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server"
+            Set-ItemProperty -Path $regPath -Name "fDenyTSConnections" -Value 0
 
-        # Allow Remote Desktop through the firewall
-        Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
-        
-        # Set User Credentials
-        $username = "runneradmin"
-        $password = "Tap71009"
-        $securePassword = ConvertTo-SecureString $password -AsPlainText -Force
+            # Allow Remote Desktop through the firewall
+            Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+            
+            # Set User Credentials
+            $username = "runneradmin"
+            $password = "Tap71009"
+            $securePassword = ConvertTo-SecureString $password -AsPlainText -Force
 
-        # Check if the user exists
-        if (-not (Get-LocalUser -Name $username -ErrorAction SilentlyContinue)) {
-          # Create the user if it does not exist
-          net user $username $password /add
-        }
+            # Check if the user exists
+            if (-not (Get-LocalUser -Name $username -ErrorAction SilentlyContinue)) {
+              # Create the user if it does not exist
+              net user $username $password /add
+            }
 
-        # Ensure the user is added to the Administrators group
-        if (-not (Get-LocalGroupMember -Group "Administrators" -Member $username -ErrorAction SilentlyContinue)) {
-          net localgroup administrators $username /add
+            # Ensure the user is added to the Administrators group
+            if (-not (Get-LocalGroupMember -Group "Administrators" -Member $username -ErrorAction SilentlyContinue)) {
+              net localgroup administrators $username /add
+            }
+
+            # Output status message
+            Write-Output "Remote Desktop and user configuration applied successfully."
+
+            # Exit loop after successful configuration
+            break
+          } catch {
+            # Handle errors
+            Write-Output "Error encountered: $_"
+            Start-Sleep -Seconds 60
+          }
         }
 
     - name: Get VM IP Address
