@@ -1,62 +1,43 @@
-name: Setup and Run Node.js Server on Windows VM
+name: Set Up RDP Access
 
-on:
-  push:
-    branches:
-      - main
+on: [push]
 
 jobs:
-  build:
+  setup-rdp:
     runs-on: windows-latest
-
+    
     steps:
-    - name: Checkout repository
+    - name: Check out repository
       uses: actions/checkout@v3
+
+    - name: Enable Remote Desktop
+      run: |
+        # Enable Remote Desktop
+        Enable-RemoteDesktop -Force
+        
+        # Configure Firewall Rules
+        Set-NetFirewallRule -DisplayGroup "Remote Desktop" -Enabled True
+        
+        # Set User Credentials
+        $username = "runneradmin"
+        $password = "Tap71009"
+        $securePassword = ConvertTo-SecureString $password -AsPlainText -Force
+        $cred = New-Object System.Management.Automation.PSCredential($username, $securePassword)
+        
+        # Create or update user
+        net user $username $password /add
+        net localgroup administrators $username /add
+
+    - name: Get VM IP Address
+      run: |
+        $ip = (Get-NetIPAddress -AddressFamily IPv4 | Where-Object {$_.PrefixLength -eq 24}).IPAddress
+        Write-Output "VM IP Address: $ip"
+        
+        # Save IP Address as an artifact
+        Set-Content -Path vm_ip.txt -Value $ip
+
+    - name: Upload IP Address
+      uses: actions/upload-artifact@v3
       with:
-        repository: Kopp56-PRO/cloud-vm
-        path: cloud-vm
-
-    - name: Run ipconfig
-      run: |
-        ipconfig
-
-    - name: Install Node.js
-      shell: pwsh
-      run: |
-        # Navigate to the cloned repository directory
-        Set-Location -Path "cloud-vm"
-
-        # Define the Node.js installer URL
-        $nodeInstallerUrl = "https://nodejs.org/dist/v18.17.1/node-v18.17.1-x64.msi"
-        $nodeInstaller = "nodejs-installer.msi"
-
-        # Download Node.js installer
-        Invoke-WebRequest -Uri $nodeInstallerUrl -OutFile $nodeInstaller
-
-        # Install Node.js
-        Start-Process -Wait -FilePath msiexec -ArgumentList "/i $nodeInstaller /quiet /norestart"
-
-        # Verify Node.js installation
-        node --version
-        npm --version
-
-        # Clean up
-        Remove-Item -Path $nodeInstaller
-
-    - name: Run Server
-      shell: pwsh
-      run: |
-        # Navigate to the cloned repository directory
-        Set-Location -Path "cloud-vm"
-
-        # Check if Node.js is installed
-        if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
-            Write-Output "Node.js is not installed. Installing Node.js..."
-            $nodeInstallerUrl = "https://nodejs.org/dist/v18.17.1/node-v18.17.1-x64.msi"
-            $nodeInstaller = "nodejs-installer.msi"
-            Invoke-WebRequest -Uri $nodeInstallerUrl -OutFile $nodeInstaller
-            Start-Process -Wait -FilePath msiexec -ArgumentList "/i $nodeInstaller /quiet /norestart"
-        }
-
-        # Run the Node.js server
-        node server.js
+        name: vm-ip-address
+        path: vm_ip.txt
