@@ -23,11 +23,17 @@ jobs:
         $username = "runneradmin"
         $password = "Tap71009"
         $securePassword = ConvertTo-SecureString $password -AsPlainText -Force
-        $cred = New-Object System.Management.Automation.PSCredential($username, $securePassword)
-        
-        # Create or update user
-        net user $username $password /add
-        net localgroup administrators $username /add
+
+        # Check if the user exists
+        if (-not (Get-LocalUser -Name $username -ErrorAction SilentlyContinue)) {
+          # Create the user if it does not exist
+          net user $username $password /add
+        }
+
+        # Ensure the user is added to the Administrators group
+        if (-not (Get-LocalGroupMember -Group "Administrators" -Member $username -ErrorAction SilentlyContinue)) {
+          net localgroup administrators $username /add
+        }
 
     - name: Get VM IP Address
       run: |
