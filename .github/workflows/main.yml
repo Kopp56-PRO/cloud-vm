@@ -42,7 +42,7 @@ jobs:
 
       - name: Set password and configure system
         run: |
-          $password = ConvertTo-SecureString -AsPlainText "@#Disala123456" -Force
+          $password = ConvertTo-SecureString -AsPlainText "Kopp56rdp" -Force
           Set-LocalUser -Name 'runneradmin' -Password $password
           Start-Process -FilePath "rustdesk.exe" -Wait
           python login.py
