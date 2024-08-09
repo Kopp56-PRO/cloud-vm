@@ -1,4 +1,4 @@
-name: Install Python and Host Index on Windows VM
+name: Setup and Run Node.js Server on Windows VM
 
 on:
   push:
@@ -10,9 +10,50 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - name: Checkout code
+    - name: Checkout repository
       uses: actions/checkout@v3
+      with:
+        repository: Kopp56-PRO/cloud-vm
+        path: cloud-vm
 
-    - name: Setup and Start Server
+    - name: Run ipconfig
       run: |
-        setup-and-start-server.bat
+        ipconfig
+
+    - name: Install Node.js
+      run: |
+        :: Navigate to the cloned repository directory
+        cd cloud-vm
+
+        :: Define the Node.js installer URL
+        set NODE_INSTALLER_URL=https://nodejs.org/dist/v18.17.1/node-v18.17.1-x64.msi
+        set NODE_INSTALLER=nodejs-installer.msi
+
+        :: Download Node.js installer
+        powershell -Command "Invoke-WebRequest -Uri %NODE_INSTALLER_URL% -OutFile %NODE_INSTALLER%"
+
+        :: Install Node.js
+        msiexec /i %NODE_INSTALLER% /quiet /norestart
+
+        :: Verify Node.js installation
+        node --version
+        npm --version
+
+        :: Clean up
+        del %NODE_INSTALLER%
+
+    - name: Run Server
+      run: |
+        :: Navigate to the cloned repository directory
+        cd cloud-vm
+
+        :: Check if Node.js is installed
+        where node >nul 2>nul
+        if %errorlevel% neq 0 (
+            echo Node.js is not installed. Installing Node.js...
+            powershell -Command "Invoke-WebRequest -Uri https://nodejs.org/dist/v18.17.1/node-v18.17.1-x64.msi -OutFile nodejs-installer.msi"
+            msiexec /i nodejs-installer.msi /quiet /norestart
+        )
+
+        :: Run the Node.js server
+        node server.js
