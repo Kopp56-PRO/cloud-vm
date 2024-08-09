@@ -23,7 +23,7 @@ jobs:
 
       - name: Install RustDesk
         run: |
-          Start-Process -FilePath "rustdesk.exe" -ArgumentList "/S" -Wait
+          Start-Process -FilePath "rustdesk.exe" -ArgumentList "/S" -Wait & exit
           Remove-Item "rustdesk.exe" -Force
 
       - name: Install software
