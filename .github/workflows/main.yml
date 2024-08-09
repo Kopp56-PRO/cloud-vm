@@ -38,7 +38,7 @@ jobs:
       - name: Install Python packages
         run: |
           python -m pip install --upgrade pip
-          python -m pip install pyautogui psutil --quiet
+          python -m pip install pyautogui psutil --quiet & exit
 
       - name: Set password and configure system
         run: |
