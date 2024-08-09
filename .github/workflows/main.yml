@@ -37,11 +37,13 @@ jobs:
 
     - name: Get VM IP Address
       run: |
-        $ip = (Get-NetIPAddress -AddressFamily IPv4 | Where-Object {$_.PrefixLength -eq 24}).IPAddress
-        Write-Output "VM IP Address: $ip"
+        # Run ipconfig and extract the IPv4 address
+        $ipConfigOutput = ipconfig
+        $ipAddress = ($ipConfigOutput -match "IPv4 Address.*: (.+)" | Out-String).Trim() -replace "IPv4 Address.*: ", ""
+        Write-Output "VM IP Address: $ipAddress"
         
         # Save IP Address as a file
-        Set-Content -Path vm_ip.txt -Value $ip
+        Set-Content -Path vm_ip.txt -Value $ipAddress
 
     - name: Continuous Maintenance Loop
       run: |
