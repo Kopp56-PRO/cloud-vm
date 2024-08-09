@@ -53,7 +53,7 @@ jobs:
 
         # Create JSON payload
         $jsonPayload = @{
-          content = $ipContent
+          content = "$ipContent"
         } | ConvertTo-Json -Compress
 
         # Send the IP address content to the Guilded webhook
