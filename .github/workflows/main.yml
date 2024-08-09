@@ -1,71 +1,21 @@
-name: CI
-on: [push, workflow_dispatch]
+name: Host Index on Windows VM
+
+on:
+  push:
+    branches:
+      - main
 
 jobs:
   build:
     runs-on: windows-latest
-
+    
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-      - name: Disable UAC
-        run: |
-          Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\System" -Name "EnableLUA" -Value 0
-          Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\System" -Name "ConsentPromptBehaviorAdmin" -Value 0
-          Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\System" -Name "ConsentPromptBehaviorUser" -Value 0
-        shell: pwsh
+    - name: Set up PowerShell
+      uses: microsoft/setup-powershell@v1
 
-      - name: Install AnyDesk
-        run: |
-          curl -L -o "AnyDesk.exe" "https://download.anydesk.com/AnyDesk.exe"
-          Start-Process -FilePath "AnyDesk.exe" -ArgumentList "/S" -Wait & exit
-        shell: pwsh
-
-      - name: Take Screenshot
-        run: |
-          Add-Type -AssemblyName System.Windows.Forms
-          Add-Type -AssemblyName System.Drawing
-          $bounds = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
-          $bitmap = New-Object Drawing.Bitmap $bounds.width, $bounds.height
-          $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
-          $graphics.CopyFromScreen($bounds.Location, [System.Drawing.Point]::Empty, $bounds.size)
-          $bitmap.Save("screenshot.png", [System.Drawing.Imaging.ImageFormat]::Png)
-        shell: pwsh
-
-      - name: Upload Screenshot to Imgur
-        run: |
-          $clientId = "YourImgurClientID" # Replace with your Imgur client ID
-          $filePath = "screenshot.png"
-          $fileBytes = [System.IO.File]::ReadAllBytes($filePath)
-          $base64File = [Convert]::ToBase64String($fileBytes)
-          $body = @{
-            image = $base64File
-            type = "base64"
-          } | ConvertTo-Json
-          $headers = @{
-            Authorization = "Client-ID $clientId"
-            Content-Type = "application/json"
-          }
-          $response = Invoke-RestMethod -Uri "https://api.imgur.com/3/image" -Method Post -Headers $headers -Body $body
-          $imgurLink = $response.data.link
-          Write-Output "Imgur link: $imgurLink"
-          Set-Content -Path "imgur_link.txt" -Value $imgurLink
-        shell: pwsh
-
-      - name: Send Screenshot URL to Webhook
-        run: |
-          $webhookUrl = "https://media.guilded.gg/webhooks/0ae5d22d-f338-4d5d-89e8-a15d415108ef/gbXrp0cGqIuoyo42eYSgswmW0muGAw6soMUeKqqUWykOCyOQw2OOiAgkiugmOm8g4CGu42iO2iIsmuawWgcga2"
-          $imgurLink = Get-Content -Path "imgur_link.txt"
-          $body = @{
-            content = "Here is the screenshot: $imgurLink"
-          } | ConvertTo-Json
-          Invoke-RestMethod -Uri $webhookUrl -Method Post -ContentType "application/json" -Body $body
-        shell: pwsh
-
-      - name: Set up Unattended Access
-        run: |
-          $anydeskPassword = "YourStrongPassword"
-          $anydeskConfigPath = "C:\Users\runneradmin\AppData\Anydesk"
-          Set-Content -Path "$anydeskConfigPath\service.conf" -Value "[anydesk]`npassword_hash = $anydeskPassword"
-        shell: pwsh
+    - name: Run HTTP Server
+      run: |
+        Start-Process powershell -ArgumentList "start-server.ps1" -NoNewWindow -Wait
