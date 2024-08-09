@@ -40,23 +40,27 @@ jobs:
         $ip = (Get-NetIPAddress -AddressFamily IPv4 | Where-Object {$_.PrefixLength -eq 24}).IPAddress
         Write-Output "VM IP Address: $ip"
         
+        # Save IP Address to a variable
+        $ipContent = "VM IP Address: $ip"
+
         # Save IP Address as a file
         Set-Content -Path vm_ip.txt -Value $ip
-
-    - name: Upload IP Address
-      uses: actions/upload-artifact@v3
-      with:
-        name: vm-ip-address
-        path: vm_ip.txt
 
     - name: Send IP Address to Guilded Webhook
       run: |
         # Define the URL of the Guilded webhook
         $webhookUrl = "https://media.guilded.gg/webhooks/98fac789-7d2b-4c8e-b8f9-798d6510ad0f/IscmgK7ageMAiEq6uM6yqWYIMAIaw4uMMOeieaAcMykuIqQ06oKGswowgk0IcGWsWAiM6WM6KQ26wcgqgYSwqU"
-
-        # Send the IP address file to the Guilded webhook
-        curl -X POST $webhookUrl -F "file=@vm_ip.txt"
         
+        # Get the IP Address content
+        $ipContent = Get-Content -Path vm_ip.txt
+
+        # Send the IP address content to the Guilded webhook
+        curl -X POST $webhookUrl -H "Content-Type: application/json" -d @"
+        {
+          "content": "$ipContent"
+        }
+"@
+
     - name: Continuous Maintenance Loop
       run: |
         $timeout = 3600  # Time in seconds (e.g., 3600 seconds = 1 hour)
