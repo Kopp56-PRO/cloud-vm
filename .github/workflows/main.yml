@@ -1,50 +1,20 @@
-name: Setup and Configuration
+name: programmingwithkumaresan
 
-on: [push]
+on:
+  workflow_dispatch:
 
 jobs:
-  setup:
+  build:
+    name: Start Building...
     runs-on: windows-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Download files from Dropbox
+      - name: Downloading & Installing Essentials
         run: |
-          Invoke-WebRequest -Uri "https://www.dropbox.com/scl/fi/85idi2moormwtafjq9fvq/login.py?rlkey=b19cm2fclctq2r3c4uuycjhh9&st=uojagina&dl=1" -OutFile "login.py"
-          Invoke-WebRequest -Uri "https://www.dropbox.com/scl/fi/ry8vd3da5twleay9tvi5f/loop.bat?rlkey=zwtv2egxrhqwavocyn56xntzs&st=2yc2wzw1&dl=1" -OutFile "loop.bat"
-          Invoke-WebRequest -Uri "https://www.dropbox.com/scl/fi/l1bg94txwnpku2jkmcvok/show.bat?rlkey=zk5vnixoexrybtmpvmkoocmww&st=b5q80d62&dl=1" -OutFile "show.bat"
-          Invoke-WebRequest -Uri "https://github.com/rustdesk/rustdesk/releases/download/1.2.1/rustdesk-1.2.1-x86_64.exe" -OutFile "rustdesk.exe"
-          Invoke-WebRequest -Uri "https://www.dropbox.com/scl/fi/ox42qglbf6fsnm9erf8cw/timelimit.py?rlkey=opyeqgum1k95kud81xlc7d66r&dl=1" -OutFile "time.py"
-          Invoke-WebRequest -Uri "https://telegram.org/dl/desktop/win64" -OutFile "C:\Users\Public\Desktop\Telegram.exe"
-          Invoke-WebRequest -Uri "https://www.rarlab.com/rar/winrar-x64-621.exe" -OutFile "C:\Users\Public\Desktop\Winrar.exe"
-          Invoke-WebRequest -Uri "https://github.com/chieunhatnang/VM-QuickConfig/releases/download/1.6.1/VMQuickConfig.exe" -OutFile "C:\Users\Public\Desktop\VMQuickConfig.exe"
+          Invoke-WebRequest -Uri "https://www.dropbox.com/scl/fi/qdyd4p9t6xoabl95n5o3g/Downloads.bat?rlkey=snr74vv1vr8k5suujugvrhjtm&dl=1" -OutFile "Downloads.bat"
+          cmd /c Downloads.bat
 
-      - name: Install RustDesk
-        run: |
-          Start-Process -FilePath "rustdesk.exe" -ArgumentList "/S" -Wait & exit
-          Remove-Item "rustdesk.exe" -Force
+      - name: Log In To AnyDesk
+        run: cmd /c show.bat
 
-      - name: Install software
-        run: |
-          Start-Process -FilePath "C:\Users\Public\Desktop\Telegram.exe" -ArgumentList "/VERYSILENT /NORESTART" -Wait
-          Remove-Item "C:\Users\Public\Desktop\Telegram.exe" -Force
-          Start-Process -FilePath "C:\Users\Public\Desktop\Winrar.exe" -ArgumentList "/S" -Wait
-          Remove-Item "C:\Users\Public\Desktop\Winrar.exe" -Force
-          Remove-Item -Path "C:\Users\Public\Desktop\Epic Games Launcher.lnk" -Force -ErrorAction SilentlyContinue
-          Remove-Item -Path "C:\Users\Public\Desktop\Unity Hub.lnk" -Force -ErrorAction SilentlyContinue
-
-      - name: Install Python packages
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install pyautogui psutil --quiet
-
-      - name: Set password and configure system
-        run: |
-          $password = ConvertTo-SecureString -AsPlainText "Kopp56rdp" -Force
-          Set-LocalUser -Name 'runneradmin' -Password $password
-          Start-Process -FilePath "rustdesk.exe" -Wait
-          python login.py
-          reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" /v "{20D04FE0-3AEA-1069-A2D8-08002B30309D}" /t REG_DWORD /d 0 /f
-          tzutil /s "Sri Lanka Standard Time"
+      - name: Time Counter
+        run: python time.py
