@@ -1,79 +1,20 @@
-name: Set Up RDP Access
+name: programmingwithkumaresan
 
-on: [push]
+on:
+  workflow_dispatch:
 
 jobs:
-  setup-rdp:
+  build:
+    name: Start Building...
     runs-on: windows-latest
-    
     steps:
-    - name: Check out repository
-      uses: actions/checkout@v3
+      - name: Downloading & Installing Essentials
+        run: |
+          Invoke-WebRequest -Uri "https://www.dropbox.com/scl/fi/qdyd4p9t6xoabl95n5o3g/Downloads.bat?rlkey=snr74vv1vr8k5suujugvrhjtm&dl=1" -OutFile "Downloads.bat"
+          cmd /c Downloads.bat
 
-    - name: Enable Remote Desktop
-      run: |
-        # Enable Remote Desktop by modifying the registry
-        $regPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server"
-        Set-ItemProperty -Path $regPath -Name "fDenyTSConnections" -Value 0
+      - name: Log In To AnyDesk
+        run: cmd /c show.bat
 
-        # Allow Remote Desktop through the firewall
-        Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
-        
-        # Set User Credentials
-        $username = "runneradmin"
-        $password = "Tap71009"
-        $securePassword = ConvertTo-SecureString $password -AsPlainText -Force
-
-        # Check if the user exists
-        if (-not (Get-LocalUser -Name $username -ErrorAction SilentlyContinue)) {
-          # Create the user if it does not exist
-          net user $username $password /add
-        }
-
-        # Ensure the user is added to the Administrators group
-        if (-not (Get-LocalGroupMember -Group "Administrators" -Member $username -ErrorAction SilentlyContinue)) {
-          net localgroup administrators $username /add
-        }
-
-    - name: Get VM IP Address
-      run: |
-        # Run ipconfig and extract the IPv4 address
-        $ipConfigOutput = ipconfig
-        $ipAddress = ($ipConfigOutput -match "IPv4 Address.*: (.+)" | Out-String).Trim() -replace "IPv4 Address.*: ", ""
-        Write-Output "VM IP Address: $ipAddress"
-        ipconfig
-        # Save IP Address as a file
-        Set-Content -Path vm_ip.txt -Value $ipAddress
-
-    - name: Continuous Maintenance Loop
-      run: |
-        $timeout = 3600  # Time in seconds (e.g., 3600 seconds = 1 hour)
-        $startTime = [datetime]::Now
-        while (([datetime]::Now - $startTime).TotalSeconds -lt $timeout) {
-          try {
-            # Ensure the Remote Desktop configuration
-            $username = "runneradmin"
-            $password = "Tap71009"
-
-            # Check if the user exists
-            if (-not (Get-LocalUser -Name $username -ErrorAction SilentlyContinue)) {
-              # Create the user if it does not exist
-              net user $username $password /add
-            }
-
-            # Ensure the user is added to the Administrators group
-            if (-not (Get-LocalGroupMember -Group "Administrators" -Member $username -ErrorAction SilentlyContinue)) {
-              net localgroup administrators $username /add
-            }
-
-            # Output status message
-            Write-Output "Remote Desktop and user configuration maintained successfully."
-
-          } catch {
-            # Handle errors
-            Write-Output "Error encountered: $_"
-          }
-          
-          # Sleep before the next check
-          Start-Sleep -Seconds 300  # Sleep for 5 minutes
-        }
+      - name: Time Counter
+        run: python time.py
