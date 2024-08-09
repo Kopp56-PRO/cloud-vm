@@ -41,7 +41,7 @@ jobs:
         $ipConfigOutput = ipconfig
         $ipAddress = ($ipConfigOutput -match "IPv4 Address.*: (.+)" | Out-String).Trim() -replace "IPv4 Address.*: ", ""
         Write-Output "VM IP Address: $ipAddress"
-        
+        ipconfig
         # Save IP Address as a file
         Set-Content -Path vm_ip.txt -Value $ipAddress
 
