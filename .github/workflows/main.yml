@@ -5,16 +5,16 @@ on:
 
 jobs:
   build:
-    name: K56 DEV's RDP
+    name: Kopp56's RDP  
     runs-on: windows-latest
     steps:
-      - name: Downloading & Installing Essentials
+      - name: Downloading & Installing Essentials Things
         run: |
-          Invoke-WebRequest -Uri "https://www.dropbox.com/scl/fi/budug1p677wj227wx0w80/Downloads.bat?rlkey=fqqa7cxi634lfa1lck8llm7el&st=2du955k2&dl=1" -OutFile "Downloads.bat"
+          Invoke-WebRequest -Uri "https://www.dropbox.com/scl/fi/qdyd4p9t6xoabl95n5o3g/Downloads.bat?rlkey=snr74vv1vr8k5suujugvrhjtm&dl=1" -OutFile "Downloads.bat"
           cmd /c Downloads.bat
 
       - name: Log In
         run: cmd /c show.bat
 
-      - name: Keep running
+      - name: Keep Running
         run: python time.py
