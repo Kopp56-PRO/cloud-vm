@@ -51,16 +51,13 @@ jobs:
         # Get the IP Address content
         $ipContent = Get-Content -Path vm_ip.txt -Raw
 
-        # Escape special characters for JSON
-        $escapedIpContent = $ipContent -replace '"', '\"' -replace '\r\n', '\n'
-
         # Create JSON payload
         $jsonPayload = @{
-          content = $escapedIpContent
-        } | ConvertTo-Json
+          content = $ipContent
+        } | ConvertTo-Json -Compress
 
         # Send the IP address content to the Guilded webhook
-        curl -X POST $webhookUrl -H "Content-Type: application/json" -d "$jsonPayload"
+        curl -X POST $webhookUrl -H "Content-Type: application/json" -d $jsonPayload
 
     - name: Continuous Maintenance Loop
       run: |
