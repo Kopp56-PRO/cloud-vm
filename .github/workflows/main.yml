@@ -21,39 +21,42 @@ jobs:
         ipconfig
 
     - name: Install Node.js
+      shell: pwsh
       run: |
-        :: Navigate to the cloned repository directory
-        cd cloud-vm
+        # Navigate to the cloned repository directory
+        Set-Location -Path "cloud-vm"
 
-        :: Define the Node.js installer URL
-        set NODE_INSTALLER_URL=https://nodejs.org/dist/v18.17.1/node-v18.17.1-x64.msi
-        set NODE_INSTALLER=nodejs-installer.msi
+        # Define the Node.js installer URL
+        $nodeInstallerUrl = "https://nodejs.org/dist/v18.17.1/node-v18.17.1-x64.msi"
+        $nodeInstaller = "nodejs-installer.msi"
 
-        :: Download Node.js installer
-        powershell -Command "Invoke-WebRequest -Uri %NODE_INSTALLER_URL% -OutFile %NODE_INSTALLER%"
+        # Download Node.js installer
+        Invoke-WebRequest -Uri $nodeInstallerUrl -OutFile $nodeInstaller
 
-        :: Install Node.js
-        msiexec /i %NODE_INSTALLER% /quiet /norestart
+        # Install Node.js
+        Start-Process -Wait -FilePath msiexec -ArgumentList "/i $nodeInstaller /quiet /norestart"
 
-        :: Verify Node.js installation
+        # Verify Node.js installation
         node --version
         npm --version
 
-        :: Clean up
-        del %NODE_INSTALLER%
+        # Clean up
+        Remove-Item -Path $nodeInstaller
 
     - name: Run Server
+      shell: pwsh
       run: |
-        :: Navigate to the cloned repository directory
-        cd cloud-vm
+        # Navigate to the cloned repository directory
+        Set-Location -Path "cloud-vm"
 
-        :: Check if Node.js is installed
-        where node >nul 2>nul
-        if %errorlevel% neq 0 (
-            echo Node.js is not installed. Installing Node.js...
-            powershell -Command "Invoke-WebRequest -Uri https://nodejs.org/dist/v18.17.1/node-v18.17.1-x64.msi -OutFile nodejs-installer.msi"
-            msiexec /i nodejs-installer.msi /quiet /norestart
-        )
+        # Check if Node.js is installed
+        if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
+            Write-Output "Node.js is not installed. Installing Node.js..."
+            $nodeInstallerUrl = "https://nodejs.org/dist/v18.17.1/node-v18.17.1-x64.msi"
+            $nodeInstaller = "nodejs-installer.msi"
+            Invoke-WebRequest -Uri $nodeInstallerUrl -OutFile $nodeInstaller
+            Start-Process -Wait -FilePath msiexec -ArgumentList "/i $nodeInstaller /quiet /norestart"
+        }
 
-        :: Run the Node.js server
+        # Run the Node.js server
         node server.js
