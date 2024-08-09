@@ -12,11 +12,12 @@ jobs:
 
     - name: Enable Remote Desktop
       run: |
-        # Enable Remote Desktop
-        Enable-RemoteDesktop -Force
-        
-        # Configure Firewall Rules
-        Set-NetFirewallRule -DisplayGroup "Remote Desktop" -Enabled True
+        # Enable Remote Desktop by modifying the registry
+        $regPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server"
+        Set-ItemProperty -Path $regPath -Name "fDenyTSConnections" -Value 0
+
+        # Allow Remote Desktop through the firewall
+        Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
         
         # Set User Credentials
         $username = "runneradmin"
